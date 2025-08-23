@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Upload, Eye, Trash2, Save, CheckCircle } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { CheckCircle, Eye, Save, Send, Trash2, Upload } from "lucide-react"
+import { useState } from "react"
 
 interface FieldData {
   [key: string]: string | File | null
@@ -117,6 +117,14 @@ export function WorkingArea() {
                           <span className="text-sm text-card-foreground flex-1">
                             {(cardData[card.id][field.id] as File)?.name || "File uploaded"}
                           </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
+                            title="Send to patient"
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
