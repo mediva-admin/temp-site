@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Banknote, CreditCard, Globe, Plus, Search, Send } from "lucide-react"
 import { useState } from "react"
+import toast, { Toaster } from "react-hot-toast"
 
 interface Service {
   id: string
@@ -26,6 +27,7 @@ interface Patient {
 export function BillingDashboard() {
   const [isLive, setIsLive] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("machine")
+  const [transactionAmount, setTransactionAmount] = useState("")
   const [services, setServices] = useState<Service[]>([
     { id: "1", name: "Ultrasound", price: 1500, discount: 0, finalAmount: 1500 },
     { id: "2", name: "Consultation", price: 1000, discount: 0, finalAmount: 1000 }
@@ -43,7 +45,7 @@ export function BillingDashboard() {
 
   const totalAmount = services.reduce((sum, service) => sum + service.finalAmount, 0)
   const prepaid = 100
-  const due = totalAmount - prepaid
+  const due = totalAmount - prepaid - (Number(transactionAmount) || 0)
 
   const updateDiscount = (serviceId: string, discount: number) => {
     setServices(services.map(service => {
@@ -64,6 +66,20 @@ export function BillingDashboard() {
       finalAmount: 0
     }
     setServices([...services, newService])
+  }
+
+  const handleSendToPatient = () => {
+    toast.success("Information has been sent to patient successfully!")
+  }
+
+  const handleRecordTransaction = () => {
+    // Simulate a transaction recording process
+    try {
+      // In a real app, this would be an API call
+      toast.success("Transaction has been successfully recorded!")
+    } catch (error) {
+      toast.error("Failed to record transaction. Please try again.")
+    }
   }
 
   return (
@@ -184,6 +200,19 @@ export function BillingDashboard() {
                   <span className="text-muted-foreground">Prepaid</span>
                   <span className="font-medium text-card-foreground">Rs. {prepaid}</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Transaction Amount</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Rs.</span>
+                    <Input
+                      type="number"
+                      value={transactionAmount}
+                      onChange={(e) => setTransactionAmount(e.target.value)}
+                      className="w-24 h-8 text-sm"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Due</span>
                   <span className="font-medium text-destructive">Rs. {due}</span>
@@ -219,7 +248,7 @@ export function BillingDashboard() {
                   <Globe className="h-4 w-4" />
                   Online
                 </Button>
-                <Button className="ml-auto">
+                <Button className="ml-auto" onClick={handleSendToPatient}>
                   <Send className="h-4 w-4 mr-2" />
                   Send to patient
                 </Button>
@@ -240,10 +269,10 @@ export function BillingDashboard() {
                   />
                 </div>
                 <div className="flex gap-3">
-                  <Button variant="outline" disabled>
+                  <Button variant="outline" onClick={handleSendToPatient}>
                     Send to patient
                   </Button>
-                  <Button disabled>
+                  <Button onClick={handleRecordTransaction}>
                     Record transaction
                   </Button>
                 </div>
@@ -319,6 +348,32 @@ export function BillingDashboard() {
           </div>
         </div>
       </div>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#ffffff',
+            color: '#000',
+            border: '1px solid #e5e7eb',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   )
 }

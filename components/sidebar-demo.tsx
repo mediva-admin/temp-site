@@ -1,6 +1,9 @@
 "use client";
 import { BillingDashboard } from "@/components/billing-dashboard";
+import { IAMDashboard } from "@/components/iam-dashboard";
+import { PatientInformation } from "@/components/patient-information";
 import { PatientFlowDashboard } from "@/components/patient-flow-dashboard";
+import { ReceptionistDashboard } from "@/components/receptionist-dashboard";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +18,6 @@ import {
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { ReceptionistDashboard } from "@/components/receptionist-dashboard";
 
 export default function SidebarDemo() {
   const [open, setOpen] = useState(false);
@@ -181,23 +183,9 @@ const DynamicContent = ({ activeContent }: { activeContent: string }) => {
       case "Billing":
         return <BillingDashboard />;
       case "Patient Information":
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-bold mb-6">Patient Information</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Access and manage patient records, medical history, and personal information.
-            </p>
-          </div>
-        );
+        return <PatientInformation />;
       case "Auth IAM":
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-bold mb-6">Authentication & Identity Management</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              Manage user access, roles, permissions, and security settings.
-            </p>
-          </div>
-        );
+        return <IAMDashboard />;
       case "Settings":
         return (
           <div className="p-8">
