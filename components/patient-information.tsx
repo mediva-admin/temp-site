@@ -8,6 +8,7 @@ import {
     Activity,
     AlertCircle,
     BarChart3,
+    Calendar,
     Camera,
     CheckCircle2,
     Clock3,
@@ -29,7 +30,7 @@ import {
     User,
     X
 } from "lucide-react"
-import { useState } from "react"
+import React, { useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
 
 interface Patient {
@@ -432,92 +433,131 @@ export function PatientInformation() {
               </motion.button>
             </div>
 
-            {/* Compact Records Table */}
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50/50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Area</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Doctor</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Summary</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Files</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100/50">
-                  {filteredRecords.map((record, index) => (
-                    <motion.tr
-                      key={record.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="hover:bg-gray-50/30 transition-colors duration-200"
-                    >
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{record.date}</div>
-                        {record.followUp && (
-                          <div className="text-xs text-emerald-600">Follow-up: {record.followUp}</div>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                            {getAreaIcon(record.area)}
-                          </div>
-                          <span className="text-sm font-medium text-gray-900">{record.area}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {record.doctor}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="max-w-xs">
-                          <p className="text-sm text-gray-900 font-medium mb-1">
-                            {record.diagnosis || "No diagnosis"}
-                          </p>
-                          <p className="text-xs text-gray-600 line-clamp-2">{record.remarks}</p>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex gap-1">
-                          {record.files.slice(0, 3).map((file, idx) => (
-                            <div
-                              key={idx}
-                              className="h-8 w-8 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center cursor-pointer hover:bg-emerald-100 transition-colors duration-200"
-                              title={file}
-                            >
-                              {file.includes('.pdf') ? (
-                                <FileText className="h-4 w-4 text-emerald-600" />
-                              ) : file.includes('.jpg') || file.includes('.png') ? (
-                                <Image className="h-4 w-4 text-emerald-600" />
-                              ) : (
-                                <File className="h-4 w-4 text-emerald-600" />
-                              )}
-                            </div>
-                          ))}
-                          {record.files.length > 3 && (
-                            <div className="h-8 w-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-600">
-                              +{record.files.length - 3}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center gap-2">
-                          <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
-                            <Eye className="h-4 w-4" />
-                          </button>
-                          <button className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50">
-                            <Download className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+             {/* Collapsible Table with Date Grouping */}
+             <div className="overflow-x-auto">
+               <table className="w-full">
+                 <thead className="bg-gray-50/50">
+                   <tr>
+                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Area</th>
+                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Remarks</th>
+                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Files</th>
+                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                   </tr>
+                 </thead>
+                 <tbody className="divide-y divide-gray-100/50">
+                   {(() => {
+                     // Group records by date
+                     const groupedRecords = filteredRecords.reduce((groups, record) => {
+                       const date = record.date;
+                       if (!groups[date]) {
+                         groups[date] = [];
+                       }
+                       groups[date].push(record);
+                       return groups;
+                     }, {} as Record<string, MedicalRecord[]>);
+
+                     // Sort dates in descending order
+                     const sortedDates = Object.keys(groupedRecords).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+
+                     const rows: React.ReactElement[] = [];
+                     
+                     sortedDates.forEach((date, dateIndex) => {
+                       const recordsForDate = groupedRecords[date];
+                       
+                       recordsForDate.forEach((record, recordIndex) => {
+                         const isFirstRecordForDate = recordIndex === 0;
+                         
+                         rows.push(
+                           <motion.tr
+                             key={`${date}-${record.id}`}
+                             initial={{ opacity: 0, y: 20 }}
+                             animate={{ opacity: 1, y: 0 }}
+                             transition={{ delay: (dateIndex * 0.1) + (recordIndex * 0.05) }}
+                             className="hover:bg-gray-50/30 transition-colors duration-200"
+                           >
+                             <td className="px-4 py-3 whitespace-nowrap">
+                               {isFirstRecordForDate ? (
+                                 <div className="flex items-center gap-2">
+                                   <Calendar className="h-4 w-4 text-emerald-600" />
+                                   <div>
+                                     <div className="text-sm font-medium text-gray-900">{record.date}</div>
+                                     <div className="text-xs text-emerald-600">
+                                       {recordsForDate.length} {recordsForDate.length === 1 ? 'procedure' : 'procedures'}
+                                     </div>
+                                   </div>
+                                 </div>
+                               ) : (
+                                 <div className="pl-6 text-xs text-gray-400">↳</div>
+                               )}
+                             </td>
+                             <td className="px-4 py-3 whitespace-nowrap">
+                               <div className="flex items-center gap-2">
+                                 <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                   {getAreaIcon(record.area)}
+                                 </div>
+                                 <span className="text-sm font-medium text-gray-900">{record.area}</span>
+                               </div>
+                             </td>
+                             <td className="px-4 py-3">
+                               <div className="max-w-xs">
+                                 {record.diagnosis && (
+                                   <p className="text-sm text-gray-900 font-medium mb-1">
+                                     {record.diagnosis}
+                                   </p>
+                                 )}
+                                 <p className="text-xs text-gray-600 line-clamp-2">{record.remarks}</p>
+                                 {record.followUp && (
+                                   <div className="mt-1 text-xs text-emerald-600">
+                                     Follow-up: {record.followUp}
+                                   </div>
+                                 )}
+                               </div>
+                             </td>
+                             <td className="px-4 py-3 whitespace-nowrap">
+                               <div className="flex gap-1">
+                                 {record.files.slice(0, 3).map((file, idx) => (
+                                   <div
+                                     key={idx}
+                                     className="h-8 w-8 rounded bg-emerald-50 border border-emerald-200 flex items-center justify-center cursor-pointer hover:bg-emerald-100 transition-colors duration-200"
+                                     title={file}
+                                   >
+                                     {file.includes('.pdf') ? (
+                                       <FileText className="h-4 w-4 text-emerald-600" />
+                                     ) : file.includes('.jpg') || file.includes('.png') ? (
+                                       <Image className="h-4 w-4 text-emerald-600" />
+                                     ) : (
+                                       <File className="h-4 w-4 text-emerald-600" />
+                                     )}
+                                   </div>
+                                 ))}
+                                 {record.files.length > 3 && (
+                                   <div className="h-8 w-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-xs text-gray-600">
+                                     +{record.files.length - 3}
+                                   </div>
+                                 )}
+                               </div>
+                             </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                 <div className="flex items-center gap-2">
+                                   <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
+                                     <Eye className="h-4 w-4" />
+                                   </button>
+                                   <button className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50">
+                                     <Download className="h-4 w-4" />
+                                   </button>
+                                 </div>
+                               </td>
+                           </motion.tr>
+                         );
+                       });
+                     });
+                     
+                     return rows;
+                   })()}
+                 </tbody>
+               </table>
+             </div>
 
             {/* Empty State */}
             {filteredRecords.length === 0 && (
