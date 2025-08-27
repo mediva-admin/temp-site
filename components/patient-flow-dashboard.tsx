@@ -1,7 +1,11 @@
-import { PatientQueue } from "./patient-queue"
-import { PatientFlow } from "./patient-flow"
-import { WorkingArea } from "./working-area"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { useState } from "react"
+import { PatientFlow } from "./patient-flow"
+import { PatientQueue } from "./patient-queue"
+import { WorkingArea } from "./working-area"
 
 export function PatientFlowDashboard() {
   const patientData = {
@@ -15,6 +19,8 @@ export function PatientFlowDashboard() {
     lastVisit: "15 Dec 2024",
   }
 
+  const [isLive, setIsLive] = useState(true)
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -27,14 +33,25 @@ export function PatientFlowDashboard() {
             <h1 className="text-xl font-semibold text-foreground">Patient Flow</h1>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-accent"></div>
-            <span className="text-sm text-muted-foreground">Live</span>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
+              <div className="flex items-center gap-2">
+                <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
+                  {isLive ? 'Live' : 'Offline'}
+                </span>
+              </div>
+              <Switch
+                checked={isLive}
+                onCheckedChange={setIsLive}
+                className="data-[state=checked]:bg-green-600"
+              />
+            </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-73px)] gap-4 p-4">
+      <div className="flex h-[calc(100vh-73px)] gap-4 p-4 pb-20">
         <div className="flex-1 bg-card rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="p-4 border-b border-border bg-card">
             <div className="flex items-center gap-3 mb-3">
@@ -74,7 +91,7 @@ export function PatientFlowDashboard() {
             </div>
 
             {/* Working Area Section */}
-            <div className="flex-1 p-6 bg-background/50">
+            <div className="flex-1 p-6 bg-background/50 overflow-y-auto pb-20">
               <div className="mb-4">
                 <h2 className="text-lg font-semibold text-foreground">Working Area</h2>
               </div>
@@ -85,6 +102,26 @@ export function PatientFlowDashboard() {
 
         <div className="w-64 bg-card rounded-lg border border-border shadow-sm">
           <PatientQueue />
+        </div>
+      </div>
+
+      {/* Floating Bottom Action Tab */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4 shadow-lg z-50">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-semibold text-card-foreground">
+              Patient Flow Actions
+            </span>
+            <Input
+              placeholder="Add remarks..."
+              className="w-80"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <Button className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+              Done
+            </Button>
+          </div>
         </div>
       </div>
     </div>

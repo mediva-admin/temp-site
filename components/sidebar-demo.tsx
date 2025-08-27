@@ -1,9 +1,10 @@
 "use client";
 import { BillingDashboard } from "@/components/billing-dashboard";
 import { IAMDashboard } from "@/components/iam-dashboard";
-import { PatientInformation } from "@/components/patient-information";
 import { PatientFlowDashboard } from "@/components/patient-flow-dashboard";
+import { PatientInformation } from "@/components/patient-information";
 import { ReceptionistDashboard } from "@/components/receptionist-dashboard";
+import { ScheduleDashboard } from "@/components/schedule-dashboard";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import {
@@ -172,14 +173,7 @@ const DynamicContent = ({ activeContent }: { activeContent: string }) => {
       case "Receptionist":
         return <ReceptionistDashboard />;
       case "Schedule":
-        return (
-          <div className="p-8">
-            <h1 className="text-3xl font-bold mb-6">Schedule Management</h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              View and manage appointments, schedules, and calendar events.
-            </p>
-          </div>
-        );
+        return <ScheduleDashboard />;
       case "Billing":
         return <BillingDashboard />;
       case "Patient Information":

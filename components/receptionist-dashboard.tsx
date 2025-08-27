@@ -30,7 +30,9 @@ export function ReceptionistDashboard() {
     email: "",
     age: "",
     referrer: "",
-    gender: "male"
+    gender: "male",
+    allergies: "",
+    bloodGroup: ""
   })
 
   const bookings: Booking[] = [
@@ -75,7 +77,7 @@ export function ReceptionistDashboard() {
       </header>
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-73px)] gap-4 p-4">
+      <div className="flex h-[calc(100vh-73px)] gap-4 p-4 pb-28">
         {/* Left Column */}
         <div className="flex-1 space-y-4">
                       {/* Today's Summary Card */}
@@ -103,8 +105,8 @@ export function ReceptionistDashboard() {
 
           {/* Booking Details Form */}
           <div className="bg-card rounded-lg border border-border shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-card-foreground mb-4">Booking details</h2>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <h2 className="text-lg font-semibold text-card-foreground mb-6">Booking details</h2>
+            <div className="grid grid-cols-2 gap-6 mb-6">
               <div>
                 <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground mb-2 block">
                   Phone Number:
@@ -188,9 +190,42 @@ export function ReceptionistDashboard() {
                   </div>
                 </RadioGroup>
               </div>
+              <div>
+                <Label htmlFor="allergies" className="text-sm font-medium text-muted-foreground mb-2 block">
+                  Allergies:
+                </Label>
+                <Input
+                  id="allergies"
+                  value={formData.allergies}
+                  onChange={(e) => handleInputChange("allergies", e.target.value)}
+                  placeholder="Enter allergies (or 'None')"
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label htmlFor="bloodGroup" className="text-sm font-medium text-muted-foreground mb-2 block">
+                  Blood Group:
+                </Label>
+                <select
+                  id="bloodGroup"
+                  value={formData.bloodGroup}
+                  onChange={(e) => handleInputChange("bloodGroup", e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <option value="">Select blood group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
             </div>
             
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <Button onClick={() => setShowServicesModal(true)} variant="outline">
                 <Plus className="h-4 w-4 mr-2" />
                 Services and date
@@ -285,16 +320,18 @@ export function ReceptionistDashboard() {
         </div>
       </div>
 
-      {/* Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4">
-        <div className="flex items-center gap-4">
-          <div className="text-lg font-semibold text-card-foreground">
-            Live dues INR 2400
+      {/* Floating Bottom Action Tab */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-4 shadow-lg z-50">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-semibold text-card-foreground">
+              Live dues INR 2400
+            </span>
+            <Input
+              placeholder="Add remarks"
+              className="w-80"
+            />
           </div>
-          <Input
-            placeholder="Add remarks"
-            className="flex-1 mx-4"
-          />
           <div className="flex items-center gap-4">
             <span className="text-lg font-semibold text-card-foreground">
               Checkin
@@ -302,8 +339,11 @@ export function ReceptionistDashboard() {
             <Button variant="outline">
               Pay later
             </Button>
-            <Button>
-              Paid
+            <Button variant="outline" className="px-6 py-2">
+              Remarks
+            </Button>
+            <Button className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+              Done
             </Button>
           </div>
         </div>

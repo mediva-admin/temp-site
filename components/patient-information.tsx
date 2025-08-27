@@ -3,32 +3,33 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { AnimatePresence, motion } from "framer-motion"
 import {
-    Activity,
-    AlertCircle,
-    BarChart3,
-    Calendar,
-    Camera,
-    CheckCircle2,
-    Clock3,
-    Download,
-    Eye,
-    File,
-    FileText,
-    Heart,
-    Image,
-    Mail,
-    MapPin,
-    Microscope,
-    Phone,
-    PieChart,
-    Plus,
-    Search,
-    Shield,
-    Stethoscope,
-    User,
-    X
+  Activity,
+  AlertCircle,
+  BarChart3,
+  Calendar,
+  Camera,
+  CheckCircle2,
+  Clock3,
+  Download,
+  Eye,
+  File,
+  FileText,
+  Heart,
+  Image,
+  Mail,
+  MapPin,
+  Microscope,
+  Phone,
+  PieChart,
+  Plus,
+  Search,
+  Shield,
+  Stethoscope,
+  User,
+  X
 } from "lucide-react"
 import React, { useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
@@ -142,6 +143,7 @@ export function PatientInformation() {
   const [dateFilter, setDateFilter] = useState<string>("all")
   const [showAddRecord, setShowAddRecord] = useState(false)
   const [showPatientDetails, setShowPatientDetails] = useState(false)
+  const [isLive, setIsLive] = useState(true)
   const [newRecord, setNewRecord] = useState<Omit<MedicalRecord, 'id'>>({
     date: new Date().toISOString().split('T')[0],
     area: "",
@@ -220,7 +222,7 @@ export function PatientInformation() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-white">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -249,7 +251,7 @@ export function PatientInformation() {
       />
 
       {/* Compact Header */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-white/20 shadow-lg sticky top-0 z-40">
+      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -268,6 +270,19 @@ export function PatientInformation() {
                 <FileText className="h-4 w-4 text-emerald-600" />
                 <span className="text-sm font-medium text-emerald-900">{medicalRecords.length} Records</span>
               </div>
+              <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200/50">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
+                    {isLive ? 'Live' : 'Offline'}
+                  </span>
+                </div>
+                <Switch
+                  checked={isLive}
+                  onCheckedChange={setIsLive}
+                  className="data-[state=checked]:bg-green-600"
+                />
+              </div>
               <Button
                 onClick={() => setShowPatientDetails(!showPatientDetails)}
                 variant="outline"
@@ -281,14 +296,14 @@ export function PatientInformation() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6 pb-28">
         {/* Compact Search Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <div className="flex-1">
                 <div className="relative">
@@ -328,7 +343,7 @@ export function PatientInformation() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6"
           >
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg p-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
@@ -382,7 +397,7 @@ export function PatientInformation() {
               exit={{ opacity: 0, height: 0 }}
               className="mb-6 overflow-hidden"
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg p-6">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Detailed Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-3">
@@ -416,7 +431,7 @@ export function PatientInformation() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-white/20 shadow-lg p-6">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <FileText className="h-5 w-5 text-emerald-600" />
@@ -719,6 +734,29 @@ export function PatientInformation() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Floating Bottom Action Tab */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-6 py-4 shadow-sm z-50">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-semibold text-gray-900">
+              Patient Information Actions
+            </span>
+            <Input
+              placeholder="Add remarks..."
+              className="w-80 bg-white/80 border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" className="px-6 py-2">
+              Remarks
+            </Button>
+            <Button className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
+              Done
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

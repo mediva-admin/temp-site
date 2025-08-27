@@ -3,15 +3,16 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { AnimatePresence, motion } from "framer-motion"
 import {
-    Edit,
-    Search,
-    Shield,
-    Trash2,
-    UserPlus,
-    Users,
-    X
+  Edit,
+  Search,
+  Shield,
+  Trash2,
+  UserPlus,
+  Users,
+  X
 } from "lucide-react"
 import { useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
@@ -70,6 +71,7 @@ export function IAMDashboard() {
   const [staff, setStaff] = useState<StaffMember[]>(initialStaff)
   const [searchQuery, setSearchQuery] = useState("")
   const [showModal, setShowModal] = useState(false)
+  const [isLive, setIsLive] = useState(true)
   const [newStaff, setNewStaff] = useState<Omit<StaffMember, 'id'>>({
     name: "",
     phoneNumber: "",
@@ -172,13 +174,26 @@ export function IAMDashboard() {
                   {staff.length} Staff Members
                 </span>
               </div>
+              <div className="flex items-center gap-3 px-4 py-2 bg-white/60 rounded-lg border border-white/20">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
+                    {isLive ? 'Live' : 'Offline'}
+                  </span>
+                </div>
+                <Switch
+                  checked={isLive}
+                  onCheckedChange={setIsLive}
+                  className="data-[state=checked]:bg-green-600"
+                />
+              </div>
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 pb-28">
         {/* Search and Add Button */}
         <div className="flex items-center justify-between mb-8">
           <div className="relative w-96">
@@ -435,6 +450,29 @@ export function IAMDashboard() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Floating Bottom Action Tab */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-white/20 px-6 py-4 shadow-lg z-50">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div className="flex items-center gap-4">
+            <span className="text-lg font-semibold text-gray-900">
+              IAM Actions
+            </span>
+            <Input
+              placeholder="Add remarks..."
+              className="w-80 bg-white/80 border-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            />
+          </div>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" className="px-6 py-2">
+              Remarks
+            </Button>
+            <Button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+              Done
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
