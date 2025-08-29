@@ -1,0 +1,61 @@
+# Mediva UI Main Rules
+
+## 🏗️ Core Architecture Principles
+
+### Single UI Library Constraint
+- **NEVER** use more than one UI library in this project
+- Maintain consistency across all UI components
+- If you need a new component, check existing UI library first
+- for good ui you can use https://ui.aceternity.com/
+### API Layer Architecture
+- **ALWAYS** check `api-client/` folder first for auto-generated OpenAPI code
+- Service layer **MUST** use auto-generated API client directly when available
+- **NEVER** implement API calls from scratch if auto-generated code exists
+- Use auto-generated DTOs for type safety and consistency
+
+### Data Flow Pattern
+- **ALL** API calls go through service files
+- **ALL** data transformations happen in `utils/` folder
+- **NEVER** mix business logic with presentation logic
+- Maintain clear separation of concerns
+
+## 📁 Mandatory Folder Structure
+```
+├── api-client/       # Auto-generated API client (PRIORITY #1)
+├── services/         # API service layer (use api-client)
+├── utils/            # Data transformations only
+├── components/       # UI components (single library)
+└── specs/           # Feature specifications
+```
+
+## 🚫 What NOT to Do
+- Don't use multiple UI libraries
+- Don't implement API calls outside service layer
+- Don't put data transformations in components
+- Don't ignore auto-generated API client code
+- Don't mix concerns between layers
+
+## ✅ What to ALWAYS Do
+- Check `api-client/` folder first
+- Use existing auto-generated code
+- Follow single UI library constraint
+- Implement proper error handling
+- Document with spec files
+- Keep code in appropriate folders
+
+## 🔍 Before You Start Coding
+1. Check if API client exists in `api-client/`
+2. Check if DTOs exist for your data model
+3. Check if service already exists
+4. Check if utility functions exist in `utils/`
+5. Check if component exists in current UI library
+
+## 📝 Code Organization Rules
+- **Services**: API integration only, use api-client
+- **Utils**: Pure functions for data transformation
+- **Components**: UI presentation only, no business logic
+- **API Client**: Auto-generated, don't modify manually
+description:
+globs:
+alwaysApply: true
+---

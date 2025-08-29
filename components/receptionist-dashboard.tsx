@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Switch } from "@/components/ui/switch"
 import { Calendar, CreditCard, Plus, Search } from "lucide-react"
 import { useState } from "react"
 
@@ -20,7 +19,6 @@ interface Booking {
 }
 
 export function ReceptionistDashboard() {
-  const [isLive, setIsLive] = useState(true)
   const [showServicesModal, setShowServicesModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState("21/09/2025")
   const [searchQuery, setSearchQuery] = useState("")
@@ -49,32 +47,7 @@ export function ReceptionistDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-semibold text-sm">R</span>
-            </div>
-            <h1 className="text-xl font-semibold text-foreground">Reception</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
-              <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-muted'}`}></div>
-                <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-muted-foreground'}`}>
-                  {isLive ? 'Live' : 'Offline'}
-                </span>
-              </div>
-              <Switch
-                checked={isLive}
-                onCheckedChange={setIsLive}
-                className="data-[state=checked]:bg-green-600"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-73px)] gap-4 p-4 pb-28">

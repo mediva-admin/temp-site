@@ -3,9 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Banknote, CreditCard, Globe, Plus, Search, Send } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
 
 interface Service {
@@ -25,7 +24,6 @@ interface Patient {
 }
 
 export function BillingDashboard() {
-  const [isLive, setIsLive] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState("machine")
   const [transactionAmount, setTransactionAmount] = useState("")
   const [services, setServices] = useState<Service[]>([
@@ -34,6 +32,21 @@ export function BillingDashboard() {
   ])
   const [activeTab, setActiveTab] = useState("payNow")
   const [searchQuery, setSearchQuery] = useState("")
+
+  // Listen for custom events from the navbar
+  useEffect(() => {
+    const handleOpenTransactions = () => {
+      // This will open the transactions view
+      toast.success("Opening transactions view...")
+      // In a real app, this would navigate to a transactions page or open a modal
+    };
+
+    window.addEventListener('openBillingTransactions', handleOpenTransactions);
+    
+    return () => {
+      window.removeEventListener('openBillingTransactions', handleOpenTransactions);
+    };
+  }, []);
 
   const patients: Patient[] = [
     { id: "1", name: "Raahul", age: "19", gender: "M", status: "PC" },
@@ -82,37 +95,11 @@ export function BillingDashboard() {
     }
   }
 
+
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-semibold text-sm">B</span>
-            </div>
-            <h1 className="text-xl font-semibold text-foreground">Billing</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
-              <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-muted'}`}></div>
-                <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-muted-foreground'}`}>
-                  {isLive ? 'Live' : 'Offline'}
-                </span>
-              </div>
-              <Switch
-                checked={isLive}
-                onCheckedChange={setIsLive}
-                className="data-[state=checked]:bg-green-600"
-              />
-            </div>
-            <Button variant="outline">
-              Transactions
-            </Button>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <div className="flex h-[calc(100vh-73px)] gap-4 p-4">

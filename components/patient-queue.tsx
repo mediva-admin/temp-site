@@ -68,7 +68,7 @@ export function PatientQueue() {
                   variant="ghost"
                   size="sm"
                   onClick={() => openMovePopup(patient)}
-                  className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                   title="Move patient"
                 >
                   <Move className="h-4 w-4" />
@@ -96,8 +96,8 @@ export function PatientQueue() {
             <div className="p-4 border-b border-border bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <Move className="h-4 w-4 text-blue-600" />
+                  <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                    <Move className="h-4 w-4 text-emerald-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-card-foreground">Move Patient</h3>

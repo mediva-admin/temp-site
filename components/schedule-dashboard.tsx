@@ -3,10 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { AnimatePresence, motion } from "framer-motion"
-import { Calendar, ChevronLeft, ChevronRight, Clock, Plus, Settings, Users, X } from "lucide-react"
-import { useState } from "react"
+import { Calendar, ChevronLeft, ChevronRight, Clock, Settings, Users, X } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface ScheduleEvent {
   id: string
@@ -72,12 +71,24 @@ const timeSlots = Array.from({ length: 24 }, (_, i) => {
 })
 
 export function ScheduleDashboard() {
-  const [isLive, setIsLive] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("day")
   const [showAddEvent, setShowAddEvent] = useState(false)
   const [selectedDate, setSelectedDate] = useState("")
   const [selectedTime, setSelectedTime] = useState("")
+
+  // Listen for the custom event from the navbar
+  useEffect(() => {
+    const handleOpenAddEvent = () => {
+      setShowAddEvent(true);
+    };
+
+    window.addEventListener('openAddEventModal', handleOpenAddEvent);
+    
+    return () => {
+      window.removeEventListener('openAddEventModal', handleOpenAddEvent);
+    };
+  }, []);
 
   const getCurrentMonthName = () => {
     return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
@@ -111,46 +122,7 @@ export function ScheduleDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <Calendar className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Schedule Management
-                </h1>
-                <p className="text-sm text-gray-600">Manage appointments and schedules</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                  <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
-                    {isLive ? 'Live' : 'Offline'}
-                  </span>
-                </div>
-                <Switch
-                  checked={isLive}
-                  onCheckedChange={setIsLive}
-                  className="data-[state=checked]:bg-green-600"
-                />
-              </div>
-              <Button
-                onClick={() => setShowAddEvent(true)}
-                className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Event
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
@@ -292,8 +264,8 @@ export function ScheduleDashboard() {
         >
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-blue-600" />
+              <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Events</p>

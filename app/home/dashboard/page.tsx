@@ -1,7 +1,5 @@
-import SidebarDemo from "@/components/sidebar-demo"
+import { PatientFlowDashboard } from "@/components/patient-flow-dashboard";
 
 export default function DashboardPage() {
-  return (
-    <SidebarDemo />
-  )
+  return <PatientFlowDashboard />;
 }

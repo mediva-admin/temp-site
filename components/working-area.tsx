@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { CheckCircle, Eye, Save, Send, Trash2, Upload } from "lucide-react"
 import { useState } from "react"
@@ -46,7 +45,6 @@ const initialCards: WorkingAreaCard[] = [
 export function WorkingArea() {
   const [cards, setCards] = useState<WorkingAreaCard[]>(initialCards)
   const [cardData, setCardData] = useState<{ [cardId: string]: FieldData }>({})
-  const [isLive, setIsLive] = useState(true)
 
   const updateCardField = (cardId: string, fieldId: string, value: string | File | null) => {
     setCardData((prev) => ({
@@ -73,22 +71,9 @@ export function WorkingArea() {
 
   return (
     <div className="space-y-4 pb-16">
-      {/* Header with Live Toggle */}
+      {/* Header */}
       <div className="flex items-center justify-between p-4 bg-card rounded-lg border border-border shadow-sm">
         <h2 className="text-lg font-semibold text-card-foreground">Working Area</h2>
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
-          <div className="flex items-center gap-2">
-            <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-            <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
-              {isLive ? 'Live' : 'Offline'}
-            </span>
-          </div>
-          <Switch
-            checked={isLive}
-            onCheckedChange={setIsLive}
-            className="data-[state=checked]:bg-green-600"
-          />
-        </div>
       </div>
 
       {/* Working Area Cards */}

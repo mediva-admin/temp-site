@@ -3,15 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Edit,
   Search,
-  Shield,
   Trash2,
   UserPlus,
-  Users,
   X
 } from "lucide-react"
 import { useState } from "react"
@@ -71,7 +68,6 @@ export function IAMDashboard() {
   const [staff, setStaff] = useState<StaffMember[]>(initialStaff)
   const [searchQuery, setSearchQuery] = useState("")
   const [showModal, setShowModal] = useState(false)
-  const [isLive, setIsLive] = useState(true)
   const [newStaff, setNewStaff] = useState<Omit<StaffMember, 'id'>>({
     name: "",
     phoneNumber: "",
@@ -85,6 +81,8 @@ export function IAMDashboard() {
     member.emailAddress.toLowerCase().includes(searchQuery.toLowerCase()) ||
     member.role.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+
 
   const handleAddStaff = () => {
     if (!newStaff.name || !newStaff.phoneNumber || !newStaff.emailAddress) {
@@ -124,7 +122,7 @@ export function IAMDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" data-staff-count={staff.length}>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -152,45 +150,7 @@ export function IAMDashboard() {
         }}
       />
 
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  Identity & Access Management
-                </h1>
-                <p className="text-sm text-gray-600">Manage staff permissions and access</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-white/60 rounded-lg border border-white/20">
-                <Users className="h-4 w-4 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">
-                  {staff.length} Staff Members
-                </span>
-              </div>
-              <div className="flex items-center gap-3 px-4 py-2 bg-white/60 rounded-lg border border-white/20">
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                  <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
-                    {isLive ? 'Live' : 'Offline'}
-                  </span>
-                </div>
-                <Switch
-                  checked={isLive}
-                  onCheckedChange={setIsLive}
-                  className="data-[state=checked]:bg-green-600"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8 pb-28">
@@ -209,7 +169,7 @@ export function IAMDashboard() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <UserPlus className="h-4 w-4" />
             Add New Staff
@@ -276,9 +236,9 @@ export function IAMDashboard() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
                         member.role === 'Admin' ? 'bg-red-100 text-red-800' :
-                        member.role === 'Doctor' ? 'bg-blue-100 text-blue-800' :
+                        member.role === 'Doctor' ? 'bg-emerald-100 text-emerald-800' :
                         member.role === 'Optometrist' ? 'bg-purple-100 text-purple-800' :
-                        'bg-green-100 text-green-800'
+                        'bg-emerald-100 text-emerald-800'
                       }`}>
                         {member.role}
                       </span>
@@ -297,7 +257,7 @@ export function IAMDashboard() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex items-center gap-2">
-                        <button className="text-indigo-600 hover:text-indigo-900 p-1 rounded-md hover:bg-indigo-50">
+                        <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
                           <Edit className="h-4 w-4" />
                         </button>
                         <button 
@@ -358,7 +318,7 @@ export function IAMDashboard() {
                       value={newStaff.name}
                       onChange={(e) => setNewStaff({ ...newStaff, name: e.target.value })}
                       placeholder="Enter full name"
-                      className="mt-1 bg-gray-50 border-gray-200 focus:border-blue-500"
+                      className="mt-1 bg-gray-50 border-gray-200 focus:border-emerald-500"
                     />
                   </div>
                   <div>
@@ -370,7 +330,7 @@ export function IAMDashboard() {
                       value={newStaff.phoneNumber}
                       onChange={(e) => setNewStaff({ ...newStaff, phoneNumber: e.target.value })}
                       placeholder="Enter phone number"
-                      className="mt-1 bg-gray-50 border-gray-200 focus:border-blue-500"
+                      className="mt-1 bg-gray-50 border-gray-200 focus:border-emerald-500"
                     />
                   </div>
                 </div>
@@ -441,7 +401,7 @@ export function IAMDashboard() {
                 </Button>
                 <Button
                   onClick={handleAddStaff}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
                 >
                   Add Staff Member
                 </Button>
@@ -467,7 +427,7 @@ export function IAMDashboard() {
             <Button variant="outline" className="px-6 py-2">
               Remarks
             </Button>
-            <Button className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700">
+            <Button className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700">
               Done
             </Button>
           </div>

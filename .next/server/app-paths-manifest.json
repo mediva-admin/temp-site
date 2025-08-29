@@ -1,4 +1,9 @@
 {
-  "/page": "app/page.js",
-  "/home/dashboard/page": "app/home/dashboard/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/home/reception/page": "app/home/reception/page.js",
+  "/home/iam/page": "app/home/iam/page.js",
+  "/home/patient-info/page": "app/home/patient-info/page.js",
+  "/home/dashboard/page": "app/home/dashboard/page.js",
+  "/home/schedule/page": "app/home/schedule/page.js",
+  "/home/billing/page": "app/home/billing/page.js"
 }

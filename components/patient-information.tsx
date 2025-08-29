@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Activity,
@@ -31,7 +30,7 @@ import {
   User,
   X
 } from "lucide-react"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import toast, { Toaster } from "react-hot-toast"
 
 interface Patient {
@@ -143,7 +142,6 @@ export function PatientInformation() {
   const [dateFilter, setDateFilter] = useState<string>("all")
   const [showAddRecord, setShowAddRecord] = useState(false)
   const [showPatientDetails, setShowPatientDetails] = useState(false)
-  const [isLive, setIsLive] = useState(true)
   const [newRecord, setNewRecord] = useState<Omit<MedicalRecord, 'id'>>({
     date: new Date().toISOString().split('T')[0],
     area: "",
@@ -154,6 +152,19 @@ export function PatientInformation() {
     prescription: "",
     followUp: ""
   })
+
+  // Listen for custom events from the navbar
+  useEffect(() => {
+    const handleTogglePatientDetails = () => {
+      setShowPatientDetails(prev => !prev);
+    };
+
+    window.addEventListener('togglePatientDetails', handleTogglePatientDetails);
+    
+    return () => {
+      window.removeEventListener('togglePatientDetails', handleTogglePatientDetails);
+    };
+  }, []);
 
   const filteredRecords = medicalRecords.filter(record => {
     const matchesSearch = record.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -222,7 +233,7 @@ export function PatientInformation() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" data-records-count={medicalRecords.length} data-show-details={showPatientDetails}>
       <Toaster
         position="top-right"
         toastOptions={{
@@ -250,50 +261,7 @@ export function PatientInformation() {
         }}
       />
 
-      {/* Compact Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
-                <User className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 via-emerald-800 to-teal-700 bg-clip-text text-transparent">
-                  Patient Information
-                </h1>
-                <p className="text-sm text-gray-600">Quick access to patient records</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200/50">
-                <FileText className="h-4 w-4 text-emerald-600" />
-                <span className="text-sm font-medium text-emerald-900">{medicalRecords.length} Records</span>
-              </div>
-              <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200/50">
-                <div className="flex items-center gap-2">
-                  <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                  <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
-                    {isLive ? 'Live' : 'Offline'}
-                  </span>
-                </div>
-                <Switch
-                  checked={isLive}
-                  onCheckedChange={setIsLive}
-                  className="data-[state=checked]:bg-green-600"
-                />
-              </div>
-              <Button
-                onClick={() => setShowPatientDetails(!showPatientDetails)}
-                variant="outline"
-                className="px-4 py-2"
-              >
-                {showPatientDetails ? "Hide Details" : "Show Details"}
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6 pb-28">
@@ -558,7 +526,7 @@ export function PatientInformation() {
                                    <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
                                      <Eye className="h-4 w-4" />
                                    </button>
-                                   <button className="text-blue-600 hover:text-blue-900 p-1 rounded-md hover:bg-blue-50">
+                                   <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
                                      <Download className="h-4 w-4" />
                                    </button>
                                  </div>

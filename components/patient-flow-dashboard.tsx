@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { useState } from "react"
-import { PatientFlow } from "./patient-flow"
-import { PatientQueue } from "./patient-queue"
-import { WorkingArea } from "./working-area"
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { PatientFlow } from "./patient-flow";
+import { PatientQueue } from "./patient-queue";
+import { WorkingArea } from "./working-area";
 
 export function PatientFlowDashboard() {
-  const patientData = {
+  const patientData = { 
     name: "Raahul",
     age: "19",
     gender: "Male",
@@ -19,37 +19,8 @@ export function PatientFlowDashboard() {
     lastVisit: "15 Dec 2024",
   }
 
-  const [isLive, setIsLive] = useState(true)
-
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-semibold text-sm">PF</span>
-            </div>
-            <h1 className="text-xl font-semibold text-foreground">Patient Flow</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
-              <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full transition-colors ${isLive ? 'bg-green-500' : 'bg-gray-400'}`}></div>
-                <span className={`text-sm font-medium transition-colors ${isLive ? 'text-green-700' : 'text-gray-600'}`}>
-                  {isLive ? 'Live' : 'Offline'}
-                </span>
-              </div>
-              <Switch
-                checked={isLive}
-                onCheckedChange={setIsLive}
-                className="data-[state=checked]:bg-green-600"
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Main Content */}
       <div className="flex h-[calc(100vh-73px)] gap-4 p-4 pb-20">
         <div className="flex-1 bg-card rounded-lg border border-border shadow-sm overflow-hidden">
@@ -100,7 +71,11 @@ export function PatientFlowDashboard() {
           </div>
         </div>
 
-        <div className="w-64 bg-card rounded-lg border border-border shadow-sm">
+        {/* Patient Queue Section */}
+        <div className="w-80 bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-border">
+            <h2 className="text-lg font-semibold text-card-foreground">Patient Queue</h2>
+          </div>
           <PatientQueue />
         </div>
       </div>
@@ -125,5 +100,5 @@ export function PatientFlowDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
