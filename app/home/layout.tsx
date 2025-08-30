@@ -1,21 +1,23 @@
 "use client";
 
+import { AuthGuard } from "@/components/auth-guard";
 import { DynamicNavbar } from "@/components/ui/dynamic-navbar";
 import { Sidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { authUtils } from "@/utils/auth-utils";
 import {
-    IconArrowLeft,
-    IconBrandTabler,
-    IconCalendar,
-    IconCreditCard,
-    IconSettings,
-    IconShieldLock,
-    IconUser,
-    IconUsers
+  IconArrowLeft,
+  IconBrandTabler,
+  IconCalendar,
+  IconCreditCard,
+  IconSettings,
+  IconShieldLock,
+  IconUser,
+  IconUsers
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function HomeLayout({
@@ -25,6 +27,7 @@ export default function HomeLayout({
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const links = [
     {
@@ -105,11 +108,12 @@ export default function HomeLayout({
   };
 
   return (
-    <div
-      className={cn(
-        "flex w-full h-screen flex-col overflow-hidden bg-gray-100 md:flex-row dark:bg-neutral-800"
-      )}
-    >
+    <AuthGuard>
+      <div
+        className={cn(
+          "flex w-full h-screen flex-col overflow-hidden bg-gray-100 md:flex-row dark:bg-neutral-800"
+        )}
+      >
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
@@ -161,9 +165,12 @@ export default function HomeLayout({
                 Settings
               </motion.span>
             </Link>
-            <Link
-              href="/"
-              className="flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-md transition-colors cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700"
+            <button
+              onClick={() => {
+                authUtils.logout();
+                router.push('/auth/signin');
+              }}  
+              className="flex items-center justify-start gap-2 group/sidebar py-2 px-2 rounded-md transition-colors cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-700 w-full text-left"
             >
               <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
               <motion.span
@@ -175,7 +182,7 @@ export default function HomeLayout({
               >
                 Logout
               </motion.span>
-            </Link>
+            </button>
           </div>
         </SidebarBody>
       </Sidebar>
@@ -185,7 +192,8 @@ export default function HomeLayout({
           {children}
         </div>
       </div>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }
 
