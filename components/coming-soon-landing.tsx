@@ -5,8 +5,15 @@ import { Footer } from "@/components/footer"
 import { StarryBackground } from "@/components/starry-background"
 import { Spotlight } from "@/components/ui/spotlight"
 import { motion } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 export function ComingSoonLanding() {
+  const router = useRouter()
+
+  const handleExplore = () => {
+    router.push("/auth/signin")
+  }
+
   return (
     <div className="relative min-h-screen">
       {/* Starry Background */}
@@ -75,9 +82,9 @@ export function ComingSoonLanding() {
             </motion.p>
           </motion.div>
           
-          {/* Call-to-action button */}
+          {/* Call-to-action buttons */}
           <motion.div 
-            className="mt-12 md:mt-16"
+            className="mt-12 md:mt-16 flex flex-col sm:flex-row gap-4 justify-center items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9, ease: "easeOut" }}
@@ -93,6 +100,20 @@ export function ComingSoonLanding() {
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
               Stay Updated
+            </motion.button>
+            
+            <motion.button 
+              onClick={handleExplore}
+              className="px-8 py-3 bg-blue-600/80 backdrop-blur-sm border border-blue-500/50 rounded-full text-white hover:bg-blue-600 transition-all duration-300 font-medium"
+              whileHover={{ 
+                scale: 1.05,
+                backgroundColor: "rgba(37, 99, 235, 0.9)",
+                borderColor: "rgba(59, 130, 246, 0.7)"
+              }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              Get Started
             </motion.button>
           </motion.div>
         </motion.div>

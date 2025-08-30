@@ -3,6 +3,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Grid background utility */
+.bg-grid-white {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+}
+
 :root {
   /* Updated color tokens to match healthcare design brief with emerald green primary and clean neutrals */
   --background: oklch(1 0 0);

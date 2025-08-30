@@ -1,0 +1,202 @@
+---
+alwaysApply: false
+---
+## Functions
+
+* Functions must be **short and single-purpose** (≤ 20 instructions).
+* Function names:
+  * Boolean → `isX`, `hasX`, `canX`, `shouldX`.
+  * Actions → `fetchX`, `createX`, `saveX`, `deleteX`.
+* Reduce nesting with early returns or utility extraction.
+* Prefer `map`, `filter`, `reduce` over explicit loops.
+* Use **arrow functions** for inline logic (≤ 3 statements).
+* Use **named functions** for non-trivial logic.
+* Use default parameter values instead of null/undefined checks.
+* Reduce parameters using **RO-RO** (Receive an Object, Return an Object).
+
+---
+
+## Data
+
+* Avoid excessive use of primitives → use **DTOs and typed objects**.
+* Encapsulate validation inside **zod schemas** or **class-validator DTOs**.
+* Prefer immutability (`readonly`, `as const`).
+
+---
+
+## React & Components
+
+* Components must be **pure and declarative**.
+* Each component should serve a single purpose.
+* Use **function components** with hooks.
+* Extract reusable logic into **custom hooks** (`useX`).
+* Avoid deeply nested JSX → extract subcomponents.
+* Keep components **≤ 200 lines** and **≤ 10 props**.
+* Use **Server Components** by default; mark as **Client Components** only when needed (`'use client'`).
+* Prefer **React 19 APIs** (e.g., `use` hook) where supported.
+
+
+
+### API Routes
+
+* One folder per domain entity under `app/api`.
+* Each HTTP method lives in its own `route.ts`.
+* Validate inputs with `zod` schemas.
+* Return typed responses (`NextResponse<YourType>`).
+
+```ts
+// app/api/user/route.ts
+import { NextResponse } from 'next/server';
+import { createUserSchema } from '@/modules/user/models/create-user.dto';
+import { userService } from '@/modules/user/services/user.service';
+
+export async function POST(req: Request): Promise<NextResponse> {
+  const body = await req.json();
+  const parsed = createUserSchema.parse(body);
+  const user = await userService.createUser(parsed);
+  return NextResponse.json(user, { status: 201 });
+}
+```
+
+---
+
+### Services
+
+* Place business logic in `services/`.
+* One service per entity/domain.
+* Services must not depend on React.
+* Keep functions pure and testable.
+
+---
+
+### Error Handling
+
+* Use `try/catch` only for expected failures or to add context.
+* Global error handling lives in `core/errors/`.
+* APIs should return **structured error responses**.
+* Leverage **Next.js 15 improved error overlay** for debugging.
+
+---
+
+## Next.js 15.2.4 Specific Practices
+
+### Metadata
+
+* Use **streaming metadata** in `generateMetadata` to avoid blocking rendering.
+* Keep metadata functions async and side-effect free.
+
+### Strict TypeScript Configuration
+
+Ensure your `tsconfig.json` is set to enforce strict typing:
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true
+  }
+}
+```
+
+### Error Handling with Custom Error Classes
+
+Implement custom error classes for structured error information:
+
+```typescript
+class AppError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 500,
+    public isOperational = true
+  ) {
+    super(message);
+    this.name = 'AppError';
+  }
+}
+
+// Usage
+throw new AppError('Invalid input', 'VALIDATION_ERROR', 400);
+```
+
+### Component Organization and Naming Conventions
+
+* **Component Types and Folder Organization**: Categorize components into shared components, layout components, and specific components.
+* **Naming Conventions**:
+  * Use **PascalCase** for component names (e.g., `SubmitButton`, `UserProfile`).
+  * Use **camelCase** for props and methods (e.g., `onSubmit`, `userName`).
+  * Use **snake_case** for custom style classes (e.g., `button_label`, `profile_card`).
+
+### Server Actions and Caching in Next.js 15
+
+* **Caching Defaults**: GET Route Handlers and the Client Router Cache are now uncached by default. Explicitly opt into caching using `export const dynamic = 'force-static'` for Route Handlers.
+
+```typescript
+// app/api/data/route.ts
+export const dynamic = 'force-static'; // Opt-in to caching
+export async function GET() {
+  const data = await fetchData();
+  return Response.json(data);
+}
+```
+
+* **Server Actions**: Define Server Actions directly within Server Components and import them into Client Components as needed. Use `try/catch` for error handling and `revalidatePath` or `revalidateTag` for cache invalidation.
+
+```typescript
+// app/actions.ts
+'use server';
+import { db } from '@/lib/db';
+import { revalidatePath } from 'next/cache';
+
+export async function addTask(formData: FormData) {
+  const task = formData.get('task') as string;
+  try {
+    await db.task.create({ data: { task } });
+    revalidatePath('/');
+  } catch (error) {
+    return { message: 'Failed to add task' };
+  }
+}
+
+// In a Client Component:
+'use client';
+import { addTask } from '../actions';
+
+function TaskForm() {
+  return (
+    <form action={addTask}>
+      <input type="text" name="task" />
+      <button type="submit">Add Task</button>
+    </form>
+  );
+}
+```
+
+---
+
+## Integration with Mediva UI Repository Rules
+
+* **Single UI Library Rule**: Never use more than one UI library in this project.
+* **Service Layer Pattern**: All API calls must be implemented in dedicated service files.
+* **API Client Usage**: Always check the `api-client/` folder first for auto-generated code from OpenAPI spec files.
+* **Direct Integration**: Service layer must use the auto-generated API client directly when available.
+* **DTO Usage**: Use the auto-generated DTOs (Data Transfer Objects) from the API client for type safety.
+* **Utils Folder**: All data transformation logic should be placed in the `utils/` folder.
+* **Spec Files**: Include specification files for all major features.
+
+---
+
+## Code Quality Standards
+
+* Follow consistent naming conventions as outlined above.
+* Implement proper error handling with structured responses.
+* Write clean, maintainable code with appropriate comments.
+* Add JSDoc documentation for public APIs.
+* Maintain proper separation of concerns.
+* Keep functions short and single-purpose.
+* Use TypeScript strict mode for better type safety.
+description:
+globs:
+alwaysApply: true
+---

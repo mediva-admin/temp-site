@@ -6,7 +6,8 @@
 - **NEVER** use more than one UI library in this project
 - Maintain consistency across all UI components
 - If you need a new component, check existing UI library first
-- for good ui you can use https://ui.aceternity.com/
+- for good ui you can use https://ui.aceternity.com/ and https://ui.shadcn.com/
+- for icon you can use https://heroicons.com/
 ### API Layer Architecture
 - **ALWAYS** check `api-client/` folder first for auto-generated OpenAPI code
 - Service layer **MUST** use auto-generated API client directly when available
