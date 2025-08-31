@@ -3,7 +3,6 @@
 export * from './AuthApi';
 export * from './BillingManagementApi';
 export * from './CampaignApi';
-export * from './CostManagementApi';
 export * from './FileManagementApi';
 export * from './FlowApi';
 export * from './NotCheckedInQueueManagementApi';

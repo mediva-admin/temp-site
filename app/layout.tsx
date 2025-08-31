@@ -33,7 +33,7 @@ export default function RootLayout({
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className={GeistSans.className} suppressHydrationWarning={true}>
         {children}
-        <Toaster position="top-right" />
+        <Toaster />
       </body>
     </html>
   )

@@ -6,7 +6,6 @@ package.json
 src/apis/AuthApi.ts
 src/apis/BillingManagementApi.ts
 src/apis/CampaignApi.ts
-src/apis/CostManagementApi.ts
 src/apis/FileManagementApi.ts
 src/apis/FlowApi.ts
 src/apis/NotCheckedInQueueManagementApi.ts

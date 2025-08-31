@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { FileManagementService } from "@/services/file-management-service"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   Activity,
@@ -31,7 +32,7 @@ import {
   X
 } from "lucide-react"
 import React, { useEffect, useState } from "react"
-import toast, { Toaster } from "react-hot-toast"
+import toast from "react-hot-toast"
 
 interface Patient {
   id: string
@@ -142,6 +143,8 @@ export function PatientInformation() {
   const [dateFilter, setDateFilter] = useState<string>("all")
   const [showAddRecord, setShowAddRecord] = useState(false)
   const [showPatientDetails, setShowPatientDetails] = useState(false)
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [isUploading, setIsUploading] = useState(false)
   const [newRecord, setNewRecord] = useState<Omit<MedicalRecord, 'id'>>({
     date: new Date().toISOString().split('T')[0],
     area: "",
@@ -175,7 +178,80 @@ export function PatientInformation() {
     return matchesSearch && matchesArea && matchesDate
   })
 
-  const handleAddRecord = () => {
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+
+    const fileArray = Array.from(files)
+    
+    // Validate files
+    for (const file of fileArray) {
+      if (!FileManagementService.validateFile(file)) {
+        toast.error(`Invalid file: ${file.name}. Please check file size (max 10MB) and type.`)
+        return
+      }
+    }
+
+    setIsUploading(true)
+    
+    try {
+      // Convert files to blobs and upload
+      const fileBlobs = fileArray.map(file => new Blob([file], { type: file.type }))
+      const uploadedUrls = await FileManagementService.uploadFiles(fileBlobs)
+      
+      // Update newRecord with uploaded file URLs
+      setNewRecord(prev => ({
+        ...prev,
+        files: [...prev.files, ...uploadedUrls]
+      }))
+      
+      // Update uploaded files state for display
+      setUploadedFiles(prev => [...prev, ...fileArray])
+      
+      toast.success(`Successfully uploaded ${fileArray.length} file(s)!`)
+    } catch (error) {
+      console.error('File upload error:', error)
+      toast.error('Failed to upload files. Please try again.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleRemoveFile = (index: number) => {
+    setNewRecord(prev => ({
+      ...prev,
+      files: prev.files.filter((_, i) => i !== index)
+    }))
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index))
+    toast.success('File removed successfully!')
+  }
+
+  const handleDownloadFiles = async (record: MedicalRecord) => {
+    if (!record.files || record.files.length === 0) {
+      toast.error('No files to download')
+      return
+    }
+
+    try {
+      const downloadedUrls = await FileManagementService.downloadFiles(record.files)
+      
+      // Create download links for each file
+      downloadedUrls.forEach((url, index) => {
+        const link = document.createElement('a')
+        link.href = url
+        link.download = record.files[index] || `file-${index + 1}`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      })
+      
+      toast.success(`Downloaded ${downloadedUrls.length} file(s) successfully!`)
+    } catch (error) {
+      console.error('File download error:', error)
+      toast.error('Failed to download files. Please try again.')
+    }
+  }
+
+  const handleAddRecord = async () => {
     if (!newRecord.area || !newRecord.remarks || !newRecord.doctor) {
       toast.error("Please fill in all required fields")
       return
@@ -197,6 +273,7 @@ export function PatientInformation() {
       prescription: "",
       followUp: ""
     })
+    setUploadedFiles([])
     setShowAddRecord(false)
     toast.success("Medical record added successfully!")
   }
@@ -234,35 +311,6 @@ export function PatientInformation() {
 
   return (
     <div className="min-h-screen bg-white" data-records-count={medicalRecords.length} data-show-details={showPatientDetails}>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: '#ffffff',
-            color: '#000',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-          },
-          success: {
-            duration: 3000,
-            iconTheme: {
-              primary: '#10b981',
-              secondary: '#fff',
-            },
-          },
-          error: {
-            duration: 4000,
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: '#fff',
-            },
-          },
-        }}
-      />
-
-
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6 pb-28">
         {/* Compact Search Section */}
@@ -526,7 +574,11 @@ export function PatientInformation() {
                                    <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
                                      <Eye className="h-4 w-4" />
                                    </button>
-                                   <button className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50">
+                                   <button 
+                                     onClick={() => handleDownloadFiles(record)}
+                                     className="text-emerald-600 hover:text-emerald-900 p-1 rounded-md hover:bg-emerald-50"
+                                     title="Download files"
+                                   >
                                      <Download className="h-4 w-4" />
                                    </button>
                                  </div>
@@ -680,23 +732,112 @@ export function PatientInformation() {
                     />
                   </div>
                 </div>
+
+                {/* File Upload Section */}
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium text-gray-700">Upload Reports & Files</Label>
+                  
+                  {/* File Upload Area */}
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-emerald-400 transition-colors duration-200">
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx,.txt"
+                      onChange={(e) => handleFileUpload(e.target.files)}
+                      className="hidden"
+                      id="file-upload"
+                      disabled={isUploading}
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className={`cursor-pointer flex flex-col items-center gap-2 ${
+                        isUploading ? 'opacity-50 cursor-not-allowed' : 'hover:text-emerald-600'
+                      }`}
+                    >
+                      <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center">
+                        {isUploading ? (
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
+                        ) : (
+                          <Plus className="h-6 w-6 text-emerald-600" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700">
+                          {isUploading ? 'Uploading files...' : 'Click to upload files'}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          PDF, Images, Documents (max 10MB each)
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {/* Uploaded Files Display */}
+                  {uploadedFiles.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-gray-700">Uploaded Files:</p>
+                      <div className="space-y-2">
+                        {uploadedFiles.map((file, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="h-8 w-8 rounded bg-emerald-100 flex items-center justify-center">
+                                {file.type.includes('pdf') ? (
+                                  <FileText className="h-4 w-4 text-emerald-600" />
+                                ) : file.type.includes('image') ? (
+                                  <Image className="h-4 w-4 text-emerald-600" />
+                                ) : (
+                                  <File className="h-4 w-4 text-emerald-600" />
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                <p className="text-xs text-gray-500">{FileManagementService.formatFileSize(file.size)}</p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleRemoveFile(index)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors duration-200"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50/50">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAddRecord(false)}
-                  className="px-6 py-2"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleAddRecord}
-                  className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-                >
-                  Add Record
-                </Button>
+              <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50/50">
+                <div className="text-sm text-gray-600">
+                  {isUploading && (
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+                      <span>Uploading files...</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAddRecord(false)}
+                    className="px-6 py-2"
+                    disabled={isUploading}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddRecord}
+                    className="px-6 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                    disabled={isUploading}
+                  >
+                    {isUploading ? 'Uploading...' : 'Add Record'}
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>

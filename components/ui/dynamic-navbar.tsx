@@ -1,8 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { QueueService } from "@/services/queue-service";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface NavbarConfig {
   title: string;
@@ -59,15 +61,105 @@ const routeConfigs: Record<string, NavbarConfig> = {
 };
 
 function LiveStatusToggle() {
+  const [isPaused, setIsPaused] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPauseStatus = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const status = await QueueService.getPauseStatus(1); // terminalId = 1
+      setIsPaused(status.isPaused);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch status');
+      toast.error('Failed to fetch queue status');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPauseStatus();
+    
+    // Poll for status updates every 30 seconds
+    const interval = setInterval(fetchPauseStatus, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleToggle = async () => {
+    try {
+      setIsLoading(true);
+      const newStatus = await QueueService.toggleQueueStatus(1); // terminalId = 1
+      setIsPaused(newStatus.isPaused);
+    } catch (err) {
+      toast.error('Failed to toggle queue status');
+      console.error('Toggle error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-gray-400 animate-pulse"></div>
+          <span className="text-sm font-medium text-gray-600">Loading...</span>
+        </div>
+        <div className="w-10 h-6 bg-gray-300 rounded-full relative">
+          <div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1 transition-transform"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-red-200 bg-red-50">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+          <span className="text-sm font-medium text-red-700">Error</span>
+        </div>
+        <button 
+          onClick={fetchPauseStatus}
+          className="text-xs text-red-600 hover:text-red-800 underline"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center gap-3 px-3 py-2 rounded-lg border border-border bg-card/50">
       <div className="flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-        <span className="text-sm font-medium text-green-700">Live</span>
+        <div className={cn(
+          "h-2 w-2 rounded-full animate-pulse",
+          isPaused ? "bg-red-500" : "bg-green-500"
+        )}></div>
+        <span className={cn(
+          "text-sm font-medium",
+          isPaused ? "text-red-700" : "text-green-700"
+        )}>
+          {isPaused ? "Paused" : "Live"}
+        </span>
       </div>
-      <div className="w-10 h-6 bg-green-600 rounded-full relative">
-        <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 transition-transform"></div>
-      </div>
+      <button
+        onClick={handleToggle}
+        disabled={isLoading}
+        className={cn(
+          "w-10 h-6 rounded-full relative transition-colors",
+          isPaused ? "bg-red-600" : "bg-green-600",
+          isLoading && "opacity-50 cursor-not-allowed"
+        )}
+      >
+        <div className={cn(
+          "w-4 h-4 bg-white rounded-full absolute top-1 transition-transform",
+          isPaused ? "left-1" : "right-1"
+        )}></div>
+      </button>
     </div>
   );
 }
