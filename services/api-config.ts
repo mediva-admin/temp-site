@@ -3,7 +3,7 @@ import { authUtils } from '@/utils/auth-utils'
 
 // Create a configuration instance with the base URL from environment
 const apiConfig = new Configuration({
-  basePath: process.env.BACKEND_BASE_URL || 'http://localhost:8080',
+  basePath:  'https://api.mediva.in',
   accessToken: async () => {
     const token = authUtils.getToken()
     return token || ''

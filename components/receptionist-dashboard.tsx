@@ -14,7 +14,7 @@ import {
   validateAge,
   validatePhoneNumber
 } from "@/utils/patient-utils"
-import { Calendar, CreditCard, Loader2, Plus, Search, X } from "lucide-react"
+import { Calendar, CreditCard, Loader2, Plus, Search, Trash2, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
 
@@ -225,6 +225,24 @@ export function ReceptionistDashboard() {
     } catch (error) {
       console.error('Failed to check in patient:', error)
       toast.error("Failed to check in patient. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleRemovePatient = async (patientId: string) => {
+    try {
+      setLoading(true)
+      const success = await NotCheckedInService.removePatient(patientId)
+      if (success) {
+        await loadPatients() // Reload the list
+        toast.success("Patient removed successfully!")
+      } else {
+        toast.error("Failed to remove patient")
+      }
+    } catch (error) {
+      console.error('Failed to remove patient:', error)
+      toast.error("Failed to remove patient. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -531,21 +549,39 @@ export function ReceptionistDashboard() {
                           {getDoctorDisplayName(patient.doctor)}
                         </span>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="default"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleCheckInPatient(patient.patientId!)
-                        }}
-                        disabled={loading}
-                        className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 flex-shrink-0 ml-2"
-                      >
-                        {loading ? (
-                          <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                        ) : null}
-                        Check In
-                      </Button>
+                      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemovePatient(patient.patientId!)
+                          }}
+                          disabled={loading}
+                          className="h-8 px-3 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          {loading ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3 w-3" />
+                          )}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleCheckInPatient(patient.patientId!)
+                          }}
+                          disabled={loading}
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0"
+                        >
+                          {loading ? (
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                          ) : null}
+                          Check In
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))

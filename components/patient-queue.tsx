@@ -1,36 +1,55 @@
 "use client"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Move, Trash2, X } from "lucide-react"
-import { useState } from "react"
+import { QueueService } from "@/services/queue-service"
+import { formatPatientDisplayName, PatientQueueItem, transformQueueEntryToPatient } from "@/utils/queue-utils"
+import { Clock, Loader2, Move, RefreshCw, Trash2, User, X } from "lucide-react"
+import { useEffect, useState } from "react"
 
-interface Patient {
-  id: string
-  name: string
+interface PatientQueueProps {
+  terminalId?: number;
 }
 
-const initialPatients: Patient[] = [
-  { id: "1", name: "Raahul 19M" },
-  { id: "2", name: "Mukesh 19M" },
-  { id: "3", name: "Mukesh 19M" },
-  { id: "4", name: "Mukesh 19M" },
-]
-
-export function PatientQueue() {
-  const [patients, setPatients] = useState<Patient[]>(initialPatients)
+export function PatientQueue({ terminalId = 1 }: PatientQueueProps) {
+  const [patients, setPatients] = useState<PatientQueueItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showMovePopup, setShowMovePopup] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [selectedPatient, setSelectedPatient] = useState<PatientQueueItem | null>(null)
   const [moveType, setMoveType] = useState<"number" | "minutes">("number")
   const [moveValue, setMoveValue] = useState("")
+
+  // Fetch patients from API
+  const fetchPatients = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const queueEntries = await QueueService.getCurrentQueue(terminalId)
+      const transformedPatients = queueEntries.map(transformQueueEntryToPatient)
+      setPatients(transformedPatients)
+    } catch (err) {
+      console.error('Failed to fetch patients:', err)
+      setError('Failed to load patient queue')
+      setPatients([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load patients on component mount
+  useEffect(() => {
+    fetchPatients()
+  }, [terminalId])
 
   const removePatient = (id: string) => {
     setPatients(patients.filter((patient) => patient.id !== id))
   }
 
-  const openMovePopup = (patient: Patient) => {
+  const openMovePopup = (patient: PatientQueueItem) => {
     setSelectedPatient(patient)
     setShowMovePopup(true)
     setMoveValue("")
@@ -55,38 +74,134 @@ export function PatientQueue() {
     setMoveValue("")
   }
 
+  const formatTime = (timeString?: string) => {
+    if (!timeString) return "TBD"
+    try {
+      const date = new Date(timeString)
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    } catch {
+      return "TBD"
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="p-4 flex items-center justify-center min-h-[200px]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="text-sm text-muted-foreground">Loading patient queue...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4">
+        <div className="text-center space-y-4">
+          <div className="text-sm text-destructive mb-4">
+            {error}
+          </div>
+          <Button 
+            onClick={fetchPatients} 
+            variant="outline" 
+            size="sm"
+            className="w-full"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="p-4">
-      <h2 className="text-lg font-semibold text-sidebar-foreground mb-4">Patient Queue</h2>
-      <div className="space-y-2">
-        {patients.map((patient) => (
-          <Card key={patient.id} className="p-3 bg-card border border-sidebar-border">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-card-foreground">{patient.name}</span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openMovePopup(patient)}
-                  className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                  title="Move patient"
-                >
-                  <Move className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removePatient(patient.id)}
-                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  title="Remove patient"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
+      {/* Header with refresh button */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">
+            {patients.length} patient{patients.length !== 1 ? 's' : ''} in queue
+          </span>
+        </div>
+        <Button
+          onClick={fetchPatients}
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 p-0"
+          title="Refresh queue"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
+
+      {patients.length === 0 ? (
+        <div className="text-center py-12">
+          <User className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground mb-2">No patients in queue</p>
+          <p className="text-xs text-muted-foreground">Patients will appear here when added to the queue</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {patients.map((patient, index) => (
+            <Card key={patient.id} className="p-4 bg-card border border-border hover:border-primary/20 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge variant="secondary" className="text-xs">
+                      #{index + 1}
+                    </Badge>
+                    <span className="text-sm font-semibold text-card-foreground truncate">
+                      {formatPatientDisplayName(patient)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    {patient.startTime && (
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        <span>{formatTime(patient.startTime)}</span>
+                      </div>
+                    )}
+                    {patient.doctor && (
+                      <Badge variant="outline" className="text-xs">
+                        {patient.doctor}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-1 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => openMovePopup(patient)}
+                    className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    title="Move patient"
+                  >
+                    <Move className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removePatient(patient.id)}
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    title="Remove patient"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Move Patient Popup */}
       {showMovePopup && selectedPatient && (
@@ -101,7 +216,7 @@ export function PatientQueue() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-card-foreground">Move Patient</h3>
-                    <p className="text-sm text-muted-foreground">{selectedPatient.name}</p>
+                    <p className="text-sm text-muted-foreground">{formatPatientDisplayName(selectedPatient)}</p>
                   </div>
                 </div>
                 <button

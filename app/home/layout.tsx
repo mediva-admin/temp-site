@@ -6,19 +6,19 @@ import { Sidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { authUtils } from "@/utils/auth-utils";
 import {
-  IconArrowLeft,
-  IconBrandTabler,
-  IconCalendar,
-  IconCreditCard,
-  IconSettings,
-  IconShieldLock,
-  IconUser,
-  IconUsers
+    IconArrowLeft,
+    IconBrandTabler,
+    IconCalendar,
+    IconCreditCard,
+    IconSettings,
+    IconShieldLock,
+    IconUser,
+    IconUsers
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomeLayout({
   children,
@@ -26,8 +26,13 @@ export default function HomeLayout({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const links = [
     {
@@ -75,7 +80,7 @@ export default function HomeLayout({
   ];
 
   const SidebarLink = ({ link, isActive }: { link: typeof links[0]; isActive: boolean }) => {
-    const { open, animate } = useSidebar();
+    const { open, animate, mounted } = useSidebar();
     
     return (
       <Link
@@ -90,10 +95,11 @@ export default function HomeLayout({
         {link.icon}
 
         <motion.span
-          animate={{
+          animate={mounted ? {
             display: animate ? (open ? "inline-block" : "none") : "inline-block",
             opacity: animate ? (open ? 1 : 0) : 1,
-          }}
+          } : {}}
+          initial={mounted ? {} : { display: "inline-block", opacity: 1 }}
           className={cn(
             "text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0",
             isActive 
@@ -141,10 +147,11 @@ export default function HomeLayout({
                 alt="Avatar"
               />
               <motion.span
-                animate={{
+                animate={mounted ? {
                   display: open ? "inline-block" : "none",
                   opacity: open ? 1 : 0,
-                }}
+                } : {}}
+                initial={mounted ? {} : { display: "inline-block", opacity: 1 }}
                 className="text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-neutral-700 dark:text-neutral-200"
               >
                 Dr. Sarah Johnson
@@ -156,10 +163,11 @@ export default function HomeLayout({
             >
               <IconSettings className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
               <motion.span
-                animate={{
+                animate={mounted ? {
                   display: open ? "inline-block" : "none",
                   opacity: open ? 1 : 0,
-                }}
+                } : {}}
+                initial={mounted ? {} : { display: "inline-block", opacity: 1 }}
                 className="text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-neutral-700 dark:text-neutral-200"
               >
                 Settings
@@ -174,10 +182,11 @@ export default function HomeLayout({
             >
               <IconArrowLeft className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
               <motion.span
-                animate={{
+                animate={mounted ? {
                   display: open ? "inline-block" : "none",
                   opacity: open ? 1 : 0,
-                }}
+                } : {}}
+                initial={mounted ? {} : { display: "inline-block", opacity: 1 }}
                 className="text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-neutral-700 dark:text-neutral-200"
               >
                 Logout

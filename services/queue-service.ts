@@ -1,4 +1,5 @@
 import { QueueManagementApi } from '@/api-client/src/apis/QueueManagementApi'
+import { PatientQueueEntry } from '@/api-client/src/models'
 import { apiConfig } from './api-config'
 
 export interface QueuePauseStatus {
@@ -8,6 +9,16 @@ export interface QueuePauseStatus {
 
 export class QueueService {
   private static queueApi = new QueueManagementApi(apiConfig)
+
+  static async getCurrentQueue(terminalId: number = 1): Promise<PatientQueueEntry[]> {
+    try {
+      const queueEntries: PatientQueueEntry[] = await this.queueApi.getCurrentQueue(terminalId)
+      return queueEntries
+    } catch (error) {
+      console.error('Get current queue error:', error)
+      throw error
+    }
+  }
 
   static async getPauseStatus(terminalId: number = 1): Promise<QueuePauseStatus> {
     try {

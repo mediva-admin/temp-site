@@ -7,7 +7,11 @@ import { PatientFlow } from "./patient-flow";
 import { PatientQueue } from "./patient-queue";
 import { WorkingArea } from "./working-area";
 
-export function PatientFlowDashboard() {
+interface PatientFlowDashboardProps {
+  terminalId?: number;
+}
+
+export function PatientFlowDashboard({ terminalId = 1 }: PatientFlowDashboardProps) {
   const patientData = { 
     name: "Raahul",
     age: "19",
@@ -76,7 +80,7 @@ export function PatientFlowDashboard() {
           <div className="px-4 py-3 border-b border-border">
             <h2 className="text-lg font-semibold text-card-foreground">Patient Queue</h2>
           </div>
-          <PatientQueue />
+          <PatientQueue terminalId={terminalId} />
         </div>
       </div>
 
